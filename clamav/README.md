@@ -1,0 +1,124 @@
+malice-clamav
+=============
+
+[![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org) [![Docker Stars](https://img.shields.io/docker/stars/malice/clamav.svg)](https://hub.docker.com/r/malice/clamav/) [![Docker Pulls](https://img.shields.io/docker/pulls/malice/clamav.svg)](https://hub.docker.com/r/malice/clamav/)
+
+This repository contains a **Dockerfile** of [ClamAV](http://www.clamav.net/lang/en/) for [Docker](https://www.docker.io/)'s [trusted build](https://index.docker.io/u/malice/clamav/) published to the public [DockerHub](https://index.docker.io/).
+
+### Dependencies
+
+-	[gliderlabs/alpine:3.4](https://index.docker.io/_/gliderlabs/alpine/)
+
+### Installation
+
+1.	Install [Docker](https://www.docker.io/).
+2.	Download [trusted build](https://hub.docker.com/r/malice/clamav/) from public [DockerHub](https://hub.docker.com): `docker pull malice/clamav`
+
+### Usage
+
+```
+docker run --rm malice/clamav EICAR
+```
+
+#### Or link your own malware folder:
+
+```bash
+$ docker run --rm -v /path/to/malware:/malware:ro malice/clamav FILE
+
+Usage: clamav [OPTIONS] COMMAND [arg...]
+
+Malice ClamAV Plugin
+
+Version: v0.1.0, BuildTime: 20160214
+
+Author:
+  blacktop - <https://github.com/blacktop>
+
+Options:
+  --verbose, -V         verbose output
+  --table, -t           output as Markdown table
+  --post, -p            POST results to Malice webhook [$MALICE_ENDPOINT]
+  --proxy, -x           proxy settings for Malice webhook endpoint [$MALICE_PROXY]
+  --elasitcsearch value elasitcsearch address for Malice to store results [$MALICE_ELASTICSEARCH]  
+  --help, -h            show help
+  --version, -v         print the version
+
+Commands:
+  update        Update virus definitions
+  help          Shows a list of commands or help for one command
+
+Run 'clamav COMMAND --help' for more information on a command.
+```
+
+This will output to stdout and POST to malice results API webhook endpoint.
+
+### Sample Output JSON:
+
+```json
+{
+  "clamav": {
+    "infected": true,
+    "result": "Eicar-Test-Signature",
+    "engine": "0.99",
+    "known": "4213581",
+    "updated": "20160213"
+  }
+}
+```
+
+### Sample Output STDOUT (Markdown Table):
+
+---
+
+#### ClamAV
+
+| Infected | Result               | Engine | Updated  |
+|----------|----------------------|--------|----------|
+| true     | Eicar-Test-Signature | 0.99   | 20160213 |
+
+---
+
+### To write results to [ElasticSearch](https://www.elastic.co/products/elasticsearch)
+
+```bash
+$ docker volume create --name malice
+$ docker run -d -p 9200:9200 -v malice:/data --name elastic elasticsearch
+$ docker run --rm -v /path/to/malware:/malware:ro --link elastic malice/clamav -t FILE
+```
+
+### To Run on OSX
+
+-	Install [Homebrew](http://brew.sh)
+
+```bash
+$ brew install caskroom/cask/brew-cask
+$ brew cask install virtualbox
+$ brew install docker
+$ brew install docker-machine
+$ docker-machine create --driver virtualbox malice
+$ eval $(docker-machine env malice)
+```
+
+### Documentation
+
+To update the AV run the following:
+
+```bash
+$ docker run --name=clamav malice/clamav update
+```
+
+Then to use the updated ClamAV container:
+
+```bash
+$ docker commit clamav malice/clamav:updated
+$ docker rm clamav # clean up updated container
+$ docker run --rm malice/clamav:updated EICAR
+```
+
+### Issues
+
+Find a bug? Want more features? Find something missing in the documentation? Let me know! Please don't hesitate to [file an issue](https://github.com/Cyb3rChi3f/malice-av/issues/new) and I'll get right on it.
+
+### License
+
+MIT Copyright (c) 2016 **blacktop**
