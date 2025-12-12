@@ -1,3 +1,0 @@
-#!/bin/bash
-
-drweb-configd

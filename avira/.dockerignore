@@ -1,9 +1,0 @@
-# Ignore .git folder
-.git*
-
-.gitignore
-README.md
-LICENSE
-
-antivir_workstation-pers.tar.gz
-run.sh
